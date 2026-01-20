@@ -12,6 +12,22 @@ Language-specific items to look for during review.
 - Dependency and supply-chain risk controls
 - Secure error handling and no debug info in prod
 
+## Critical 5 (10-Minute Cram)
+
+- **AuthZ everywhere**: Verify server-side **authorization** on every sensitive action.
+- **Source to sink**: Trace untrusted input to dangerous `sinks`.
+- **Safe APIs**: Prefer parameterized queries and vetted libraries.
+- **Secrets control**: No hardcoded secrets; use managed secret stores.
+- **Supply chain**: Pin dependencies and verify provenance.
+
+## Red Flags
+
+- **Bypassable authZ** via client-side checks
+- **Untrusted deserialization** with `readObject`/`pickle`-style APIs
+- **SSRF-capable** URL fetchers with no allowlist
+- **Mutable** dependencies or base images (`latest`)
+- **Missing** audit trails for admin actions
+
 ## Java
 
 - Use of `PreparedStatement` for DB access
@@ -113,6 +129,19 @@ Language-specific items to look for during review.
 - Validate **LLM output** before use (schema checks, allowlists)
 - Prevent **tool/function abuse** with strict input validation
 - Log **model interactions** with redaction and audit controls
+
+## Cloud Native and Kubernetes (Senior Scenarios)
+
+- **Privileged DaemonSet** required for observability; how do you reduce blast radius and enforce `PSA`?
+- **Cluster-admin service account** is mounted in pods; how do you move to workload identity?
+- **Unsigned images** are allowed; how do you enforce `cosign` verification via admission control?
+- **Namespace isolation** breaks and cross-tenant access occurs; how do you fix `RBAC` and `NetworkPolicy`?
+- **`hostPath` mounts** are used for logs; how do you prevent host escape?
+- **`etcd` is unencrypted**; how do you remediate without downtime?
+- **`latest` tags** deployed in prod; how do you enforce digest pinning?
+- **Admission webhook** is fail-open; what risks and how to fix?
+- **Secrets in etcd** are plaintext; how do you enable encryption and rotate?
+- **Runtime policy alert** fires (crypto mining); how do you triage and contain?
 
 ## Essential Security Research Resources
 

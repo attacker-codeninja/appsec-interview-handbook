@@ -50,16 +50,81 @@ Language-specific items to look for during review.
 
 ## Go
 
-- Use context timeouts for external calls
-- Validate JSON input with struct tags
-- Use `database/sql` with prepared statements
-- Check for SSRF on URL fetchers
+- Use **context timeouts** for external calls
+- Validate JSON input with struct tags (e.g., `json` tags)
+- Use `database/sql` with **prepared statements**
+- Check for **SSRF** on URL fetchers
 - Avoid `os/exec` with untrusted inputs
+
+## Rust
+
+- Review **`unsafe` blocks** for memory safety assumptions and invariants
+- Check **integer overflows** in arithmetic and conversions (e.g., `as`, `checked_add`)
+- Validate **FFI boundaries** for untrusted inputs
+- Ensure **panic safety** does not bypass authZ or input checks
+- Audit dependencies with `cargo audit` and review `Cargo.lock`
+- Prefer **safe crates** over custom crypto or parsers
+
+## Mobile (Swift/Kotlin)
+
+- Verify **biometric auth** uses OS-backed APIs (`LocalAuthentication`, `BiometricPrompt`)
+- Store secrets in **Keychain/Keystore** (e.g., `Keychain`, `AndroidKeyStore`)
+- Confirm **Secure Enclave/StrongBox** usage for high-value keys
+- Enforce **certificate pinning** with rotation strategy
+- Validate **deep links** and URL schemes (allowlist, authZ check)
+- Ensure **sensitive data** is excluded from backups and logs
+
+## TypeScript
+
+- Treat **type safety** as compile-time only; validate at runtime
+- Avoid `any` and `unknown` misuse; require explicit narrowing
+- Use **schema validation** (e.g., `zod`, `valibot`) at boundaries
+- Guard **JSON parsing** and external inputs with validators
+- Ensure **strict** compiler settings (e.g., `noImplicitAny`)
 
 ## IaC (Terraform/CloudFormation)
 
 - No public S3 buckets or open security groups
-- Enforce encryption at rest and in transit
+- Enforce **encryption** at rest and in transit
 - Avoid wildcard IAM policies
-- Enable audit logging and monitoring
+- Enable **audit logging** and monitoring
 - Use private subnets and minimal ingress
+
+## GraphQL
+
+- Enforce **depth limiting** to prevent expensive queries
+- Apply **query complexity analysis** and cost budgets
+- Implement **field-level authorization** and ownership checks
+- Avoid **over-fetching** sensitive fields by default
+- Validate **input types** and custom scalars
+
+## Serverless (AWS Lambda/Azure Functions)
+
+- Validate **event payloads** to prevent event injection
+- Configure **timeouts** and memory limits per function
+- Enforce **least privilege IAM** per function (no shared broad roles)
+- Avoid **secret exposure** in env vars; use managed secret stores
+- Restrict **egress** to prevent SSRF and data exfiltration
+
+## AI/LLM Integration
+
+- Mitigate **prompt injection** by separating system and user content
+- Filter **PII** and secrets from prompts and outputs
+- Validate **LLM output** before use (schema checks, allowlists)
+- Prevent **tool/function abuse** with strict input validation
+- Log **model interactions** with redaction and audit controls
+
+## Essential Security Research Resources
+
+| Resource | Why It Matters | Link |
+| --- | --- | --- |
+| OWASP ASVS | **Baseline** security requirements for applications | https://owasp.org/www-project-application-security-verification-standard/ |
+| CWE | **Taxonomy** of software weaknesses | https://cwe.mitre.org/ |
+| PayloadsAllTheThings | **Practical payloads** for testing and validation | https://github.com/swisskyrepo/PayloadsAllTheThings |
+| Google KPR Framework | **Know, Prevent, Retain** strategy for security programs | https://security.googleblog.com/2019/08/know-prevent-retain.html |
+
+## Visual Asset Descriptions
+
+- **Untrusted Input Pipeline**: Diagram showing `source` -> **validation** -> **sanitization** -> `sink`, with trust boundaries highlighted.
+- **GraphQL Query Risk Map**: Diagram of query depth and **field-level authZ** gates across a resolver tree.
+- **Serverless Event Flow**: Diagram of event source -> **validation** -> function -> **IAM checks** -> downstream services, with failure paths.

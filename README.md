@@ -63,6 +63,7 @@ A curated, senior-level AppSec interview prep repository with questions and conc
 - `DevSecOps/CI-CD/Mid-Senior.md`
 - `DevSecOps/CI-CD/Scenarios.md`
 - `DevSecOps/CI-CD/Resources.md`
+- `DevSecOps/CI-CD/Pipeline-Security.md`
 - `DevSecOps/Threat-Modeling/Quick-Reference.md`
 - `DevSecOps/Threat-Modeling/Junior.md`
 - `DevSecOps/Threat-Modeling/Mid-Senior.md`

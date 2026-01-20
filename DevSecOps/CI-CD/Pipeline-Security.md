@@ -1,0 +1,111 @@
+# DevSecOps Pipeline Security Checklist
+
+Secure the delivery pipeline itself, not just application code. This checklist is designed for interview prep and real-world audits.
+
+## CI/CD Pipeline Security Checklist
+
+### Pipeline Integrity
+
+- **Build agent hardening**: Use minimal images, patch regularly, and disable unnecessary services.
+- **Ephemeral runners**: Prefer short-lived, clean runners to reduce persistence risk.
+- **Signed commits**: Enforce `GPG`/`SSH` commit signing on protected branches.
+- **Protected branches**: Require reviews and status checks before merge.
+- **Trusted actions**: Pin third-party actions by commit SHA and review sources.
+
+### Secret Masking and Auth
+
+- **Secret masking**: Mask secrets in logs and avoid `echo` of env vars.
+- **OIDC federation**: Use `OIDC` for cloud auth (e.g., GitHub Actions -> AWS) instead of long-lived keys.
+- **Scoped tokens**: Use short-lived, least-privilege tokens per workflow.
+- **Secrets scanning**: Block commits that contain secrets and rotate on detection.
+
+### Dependency Scanning (SCA)
+
+- **Transitive CVEs**: Scan both direct and transitive dependencies.
+- **License compliance**: Detect incompatible licenses before release.
+- **Lockfiles**: Enforce `package-lock.json`, `poetry.lock`, `go.sum`, etc.
+- **Update cadence**: Auto-update dependencies with gated reviews.
+
+### Artifact Security
+
+- **Image signing**: Sign container images with `cosign`.
+- **Checksum verification**: Verify checksums for build artifacts and dependencies.
+- **Private registry hardening**: Restrict pushes, enforce MFA, and disable anonymous pulls.
+- **Immutable tags**: Use digests or immutable tags instead of `latest`.
+
+## Automated Security Testing Gates
+
+### SAST / DAST / IAST
+
+- **Commit-time SAST**: Run fast SAST at `PR` time for high-signal rules.
+- **Nightly deep scans**: Run full SAST/DAST/IAST on a schedule to reduce CI latency.
+- **Break-the-build**: Fail on critical severity or exploitable findings with confirmed paths.
+- **Triage workflow**: Require justification and expiration for suppressions.
+
+### IaC Scanning
+
+- **Pre-merge checks**: Scan `Terraform`/`CloudFormation` for public exposure and weak IAM.
+- **Policy-as-code**: Enforce rules with `OPA`/`Conftest` or `Checkov`.
+- **Drift detection**: Compare runtime config with IaC to detect unauthorized changes.
+
+## Infrastructure and Supply Chain Checklist
+
+### SBOM
+
+- **Generation**: Create SBOMs (e.g., `CycloneDX`, `SPDX`) at build time.
+- **Storage**: Store SBOMs with build artifacts and link to releases.
+- **Traceability**: Map SBOM entries to deployed versions.
+
+### Supply Chain
+
+- **Dependency confusion**: Use private registries and namespace controls.
+- **Typosquatting**: Allowlist package names and vendors.
+- **Provenance**: Use `SLSA` provenance and signed attestations.
+
+### Access Control
+
+- **Least privilege**: Scope CI/CD service principals to specific repos and environments.
+- **Environment separation**: Separate credentials for dev/staging/prod.
+- **Break-glass**: Use short-lived elevated access with audit trails.
+
+## Secure DevSecOps Pipeline Diagram
+
+```mermaid
+flowchart LR
+  A[Code Commit] --> B[PR Checks]
+  B --> C[SAST]
+  B --> D[SCA]
+  B --> E[Secret Scanning]
+  B --> F[Build + Unit Tests]
+  F --> G[Artifact Signing]
+  G --> H[Staging Deploy]
+  H --> I[DAST/IAST]
+  I --> J[Release Gate]
+  J --> K[Production Deploy]
+```
+
+## References and Tools
+
+### Secrets and Credential Hygiene
+
+- **TruffleHog**: https://github.com/trufflesecurity/trufflehog
+- **Gitleaks**: https://github.com/gitleaks/gitleaks
+- **GitHub Secret Scanning**: https://docs.github.com/en/code-security/secret-scanning
+
+### SCA and Container Scanning
+
+- **Snyk**: https://snyk.io/
+- **Trivy**: https://github.com/aquasecurity/trivy
+- **OWASP Dependency-Check**: https://owasp.org/www-project-dependency-check/
+
+### IaC Scanning and Policy
+
+- **Checkov**: https://github.com/bridgecrewio/checkov
+- **tfsec**: https://github.com/aquasecurity/tfsec
+- **OPA/Conftest**: https://www.openpolicyagent.org/
+
+### Artifact Signing and Provenance
+
+- **Cosign**: https://github.com/sigstore/cosign
+- **Sigstore**: https://www.sigstore.dev/
+- **SLSA**: https://slsa.dev/
